@@ -51,6 +51,7 @@ export default function FrameCalculator() {
   const [rabbet, setRabbet] = useState("1/4");
   const [allowance, setAllowance] = useState("1/16");
   const [rabbetDepth, setRabbetDepth] = useState("1/4");
+  const [faceDepth, setFaceDepth] = useState("3/4");
   const [mode, setMode] = useState<Mode>("fraction");
   const [view, setView] = useState<View>("front");
 
@@ -61,6 +62,7 @@ export default function FrameCalculator() {
   const alRaw = parseInput(allowance);
   const al = isNaN(alRaw) ? 0 : alRaw;
   const rd = parseInput(rabbetDepth);
+  const fd = parseInput(faceDepth);
 
   const valid =
     !isNaN(gw) &&
@@ -68,12 +70,15 @@ export default function FrameCalculator() {
     !isNaN(mw) &&
     !isNaN(rw) &&
     !isNaN(rd) &&
+    !isNaN(fd) &&
     gw > 0 &&
     gh > 0 &&
     mw > 0 &&
     rw > 0 &&
     rd > 0 &&
-    mw > rw;
+    fd > 0 &&
+    mw > rw &&
+    fd > rd;
 
   const wShort = Math.min(gw, gh);
   const wLong = Math.max(gw, gh);
@@ -158,6 +163,13 @@ export default function FrameCalculator() {
         <FieldGroup label="02 · Molding profile">
           <div className="flex gap-[10px]">
             <Field label="Face width" value={molding} onChange={setMolding} />
+            <Field
+              label="Face depth"
+              value={faceDepth}
+              onChange={setFaceDepth}
+            />
+          </div>
+          <div className="mt-[10px] flex gap-[10px]">
             <Field label="Rabbet width" value={rabbet} onChange={setRabbet} />
             <Field
               label="Rabbet depth"
@@ -166,8 +178,8 @@ export default function FrameCalculator() {
             />
           </div>
           <div className="mt-[6px] font-display text-[12px] italic text-ink-soft">
-            Rabbet width is the lip that covers the glass; depth is how far
-            the recess goes into the back of the molding.
+            Face dims describe the molding stock; rabbet dims describe the
+            L-shaped recess cut into its back-inner corner.
           </div>
         </FieldGroup>
 
@@ -387,6 +399,8 @@ export default function FrameCalculator() {
                 <RabbetCrossSection
                   mw={mw}
                   rw={rw}
+                  rd={rd}
+                  fd={fd}
                   valid={valid}
                   fmt={fmt}
                 />
@@ -574,25 +588,33 @@ function SectionLabel({ children }: { children: ReactNode }) {
 function RabbetCrossSection({
   mw,
   rw,
+  rd,
+  fd,
   valid,
   fmt,
 }: {
   mw: number;
   rw: number;
+  rd: number;
+  fd: number;
   valid: boolean;
   fmt: (v: number) => string;
 }) {
   const vbW = 400;
-  const vbH = 240;
   const moldingW = 220;
-  const moldingT = 100;
+  const padTop = 50;
+  const padBottom = 70;
+  const rawT = valid && mw > 0 && fd > 0 ? (moldingW * fd) / mw : 100;
+  const moldingT = Math.max(60, Math.min(200, rawT));
+  const vbH = padTop + moldingT + padBottom;
   const left = 60;
-  const top = 50;
+  const top = padTop;
   const right = left + moldingW;
   const bottom = top + moldingT;
   const lipRatio = valid && mw > 0 ? rw / mw : 0.25;
   const lipW = moldingW * lipRatio;
-  const rabbetD = moldingT * 0.55;
+  const depthRatio = valid && fd > 0 ? rd / fd : 0.55;
+  const rabbetD = moldingT * depthRatio;
   const rabbetTop = bottom - rabbetD;
   const rabbetLeft = right - lipW;
   const glassExtend = 80;
@@ -667,6 +689,28 @@ function RabbetCrossSection({
       >
         FACE WIDTH
       </text>
+
+      <g
+        transform={`translate(${left - 14}, ${top + moldingT / 2}) rotate(-90)`}
+      >
+        <text
+          textAnchor="middle"
+          fontSize="12"
+          fontWeight="500"
+          className="fill-accent font-mono"
+        >
+          {fmt(fd)}
+        </text>
+        <text
+          y={-14}
+          textAnchor="middle"
+          fontSize="8.5"
+          letterSpacing="0.12em"
+          className="fill-ink-soft font-mono"
+        >
+          FACE DEPTH
+        </text>
+      </g>
 
       <text
         x={left + (moldingW - lipW) / 2}
