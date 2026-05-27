@@ -4,6 +4,8 @@ import { useState, type ReactNode } from "react";
 
 type Mode = "fraction" | "decimal";
 
+type View = "front" | "rabbet";
+
 type Preset = { label: string; w: number; h: number };
 
 const PRESETS: readonly Preset[] = [
@@ -49,6 +51,7 @@ export default function FrameCalculator() {
   const [rabbet, setRabbet] = useState("1/4");
   const [allowance, setAllowance] = useState("1/16");
   const [mode, setMode] = useState<Mode>("fraction");
+  const [view, setView] = useState<View>("front");
 
   const gw = parseInput(glassW);
   const gh = parseInput(glassH);
@@ -203,8 +206,29 @@ export default function FrameCalculator() {
           </div>
 
         <section className="mb-[22px] lg:sticky lg:top-6">
-          <SectionLabel>Frame Layout · Front View</SectionLabel>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft">
+              Frame Layout
+            </div>
+            <div className="flex w-fit border border-ink">
+              {(["front", "rabbet"] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={
+                    "cursor-pointer border-none px-[10px] py-[4px] font-mono text-[10px] uppercase tracking-[0.1em] " +
+                    (view === v
+                      ? "bg-ink text-paper"
+                      : "bg-transparent text-ink")
+                  }
+                >
+                  {v === "front" ? "Front" : "Rabbet"}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="border border-rule bg-white p-[12px]">
+            {view === "front" ? (
             <svg
               viewBox={`0 0 ${vbW} ${vbH}`}
               className="block h-auto w-full max-h-[460px]"
@@ -349,6 +373,9 @@ export default function FrameCalculator() {
                 (inner edge, short point to short point)
               </text>
             </svg>
+            ) : (
+              <RabbetCrossSection mw={mw} rw={rw} valid={valid} fmt={fmt} />
+            )}
           </div>
         </section>
         </div>
@@ -487,5 +514,169 @@ function SectionLabel({ children }: { children: ReactNode }) {
     <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft">
       {children}
     </div>
+  );
+}
+
+function RabbetCrossSection({
+  mw,
+  rw,
+  valid,
+  fmt,
+}: {
+  mw: number;
+  rw: number;
+  valid: boolean;
+  fmt: (v: number) => string;
+}) {
+  const vbW = 400;
+  const vbH = 240;
+  const moldingW = 220;
+  const moldingT = 100;
+  const left = 60;
+  const top = 50;
+  const right = left + moldingW;
+  const bottom = top + moldingT;
+  const lipRatio = valid && mw > 0 ? rw / mw : 0.25;
+  const lipW = moldingW * lipRatio;
+  const rabbetD = moldingT * 0.55;
+  const rabbetTop = bottom - rabbetD;
+  const rabbetLeft = right - lipW;
+  const glassExtend = 80;
+  const glassThick = 4;
+  const glassLeft = rabbetLeft + 2;
+  const glassTop = rabbetTop + 3;
+  const path =
+    `M ${left} ${top} ` +
+    `L ${right} ${top} ` +
+    `L ${right} ${rabbetTop} ` +
+    `L ${rabbetLeft} ${rabbetTop} ` +
+    `L ${rabbetLeft} ${bottom} ` +
+    `L ${left} ${bottom} Z`;
+
+  return (
+    <svg
+      viewBox={`0 0 ${vbW} ${vbH}`}
+      className="block h-auto w-full max-h-[460px]"
+    >
+      <defs>
+        <pattern
+          id="hatch-rabbet"
+          patternUnits="userSpaceOnUse"
+          width="6"
+          height="6"
+          patternTransform="rotate(45)"
+        >
+          <line
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="6"
+            className="stroke-ink-soft"
+            strokeWidth="0.5"
+            opacity="0.35"
+          />
+        </pattern>
+      </defs>
+
+      <path
+        d={path}
+        fill="url(#hatch-rabbet)"
+        className="stroke-ink"
+        strokeWidth="1.6"
+      />
+
+      <rect
+        x={glassLeft}
+        y={glassTop}
+        width={right + glassExtend - glassLeft}
+        height={glassThick}
+        className="fill-accent"
+      />
+
+      <text
+        x={left + moldingW / 2}
+        y={top - 14}
+        textAnchor="middle"
+        fontSize="12"
+        fontWeight="500"
+        className="fill-accent font-mono"
+      >
+        {fmt(mw)}
+      </text>
+      <text
+        x={left + moldingW / 2}
+        y={top - 26}
+        textAnchor="middle"
+        fontSize="8.5"
+        letterSpacing="0.12em"
+        className="fill-ink-soft font-mono"
+      >
+        FACE WIDTH
+      </text>
+
+      <text
+        x={left + (moldingW - lipW) / 2}
+        y={bottom + 18}
+        textAnchor="middle"
+        fontSize="11"
+        fontWeight="500"
+        className="fill-ink font-mono"
+      >
+        {fmt(mw - rw)}
+      </text>
+      <text
+        x={left + (moldingW - lipW) / 2}
+        y={bottom + 32}
+        textAnchor="middle"
+        fontSize="8.5"
+        letterSpacing="0.12em"
+        className="fill-ink-soft font-mono"
+      >
+        OVERHANG
+      </text>
+
+      <text
+        x={rabbetLeft + lipW / 2}
+        y={bottom + 18}
+        textAnchor="middle"
+        fontSize="11"
+        fontWeight="500"
+        className="fill-accent font-mono"
+      >
+        {fmt(rw)}
+      </text>
+      <text
+        x={rabbetLeft + lipW / 2}
+        y={bottom + 32}
+        textAnchor="middle"
+        fontSize="8.5"
+        letterSpacing="0.12em"
+        className="fill-ink-soft font-mono"
+      >
+        RABBET
+      </text>
+
+      <text
+        x={right + glassExtend / 2 + 10}
+        y={glassTop + glassThick + 16}
+        textAnchor="middle"
+        fontSize="9"
+        letterSpacing="0.12em"
+        className="fill-accent font-mono"
+      >
+        GLASS →
+      </text>
+
+      <text
+        x={left + moldingW / 2}
+        y={bottom + 56}
+        textAnchor="middle"
+        fontSize="11"
+        fontStyle="italic"
+        className="fill-ink-soft font-display"
+      >
+        (cross-section through one molding piece)
+      </text>
+    </svg>
   );
 }
