@@ -102,7 +102,7 @@ export default function FrameCalculator() {
 
   return (
     <main className="px-[14px] pt-6 pb-[60px]">
-      <div className="mx-auto max-w-[720px]">
+      <div className="mx-auto max-w-[720px] lg:max-w-5xl">
         <header className="mb-[22px] border-b-2 border-ink pb-[14px]">
           <div className="mb-[6px] font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft">
             Shop Reference · Picture Framing
@@ -114,6 +114,9 @@ export default function FrameCalculator() {
             for mitered moldings with a rabbeted glass opening
           </div>
         </header>
+
+        <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
+          <div>
 
         <FieldGroup label="01 · Glass dimensions">
           <div className="mb-[10px] flex gap-[10px]">
@@ -197,7 +200,9 @@ export default function FrameCalculator() {
           </div>
         </section>
 
-        <section className="mb-[22px]">
+          </div>
+
+        <section className="mb-[22px] lg:sticky lg:top-6">
           <SectionLabel>Frame Layout · Front View</SectionLabel>
           <div className="border border-rule bg-white p-[12px]">
             <svg
@@ -346,6 +351,7 @@ export default function FrameCalculator() {
             </svg>
           </div>
         </section>
+        </div>
 
         <section className="mb-6">
           <SectionLabel>All Dimensions</SectionLabel>
