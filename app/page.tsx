@@ -50,6 +50,7 @@ export default function FrameCalculator() {
   const [molding, setMolding] = useState("1");
   const [rabbet, setRabbet] = useState("1/4");
   const [allowance, setAllowance] = useState("1/16");
+  const [rabbetDepth, setRabbetDepth] = useState("1/4");
   const [mode, setMode] = useState<Mode>("fraction");
   const [view, setView] = useState<View>("front");
 
@@ -59,16 +60,19 @@ export default function FrameCalculator() {
   const rw = parseInput(rabbet);
   const alRaw = parseInput(allowance);
   const al = isNaN(alRaw) ? 0 : alRaw;
+  const rd = parseInput(rabbetDepth);
 
   const valid =
     !isNaN(gw) &&
     !isNaN(gh) &&
     !isNaN(mw) &&
     !isNaN(rw) &&
+    !isNaN(rd) &&
     gw > 0 &&
     gh > 0 &&
     mw > 0 &&
     rw > 0 &&
+    rd > 0 &&
     mw > rw;
 
   const wShort = Math.min(gw, gh);
@@ -155,10 +159,15 @@ export default function FrameCalculator() {
           <div className="flex gap-[10px]">
             <Field label="Face width" value={molding} onChange={setMolding} />
             <Field label="Rabbet width" value={rabbet} onChange={setRabbet} />
+            <Field
+              label="Rabbet depth"
+              value={rabbetDepth}
+              onChange={setRabbetDepth}
+            />
           </div>
           <div className="mt-[6px] font-display text-[12px] italic text-ink-soft">
-            Rabbet is the lip that covers the front edge of the glass; must be
-            smaller than face width.
+            Rabbet width is the lip that covers the glass; depth is how far
+            the recess goes into the back of the molding.
           </div>
         </FieldGroup>
 
@@ -374,7 +383,52 @@ export default function FrameCalculator() {
               </text>
             </svg>
             ) : (
-              <RabbetCrossSection mw={mw} rw={rw} valid={valid} fmt={fmt} />
+              <>
+                <RabbetCrossSection
+                  mw={mw}
+                  rw={rw}
+                  valid={valid}
+                  fmt={fmt}
+                />
+                <div className="mt-3 border-t border-rule pt-3">
+                  <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft">
+                    Table Saw Cuts · two passes
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {[
+                      {
+                        title: "Cut 01 · Inner wall",
+                        blade: fmt(rd),
+                        fence: fmt(mw - rw),
+                        setup: "Flat · face down · outer edge to fence",
+                      },
+                      {
+                        title: "Cut 02 · Shelf",
+                        blade: fmt(rw),
+                        fence: fmt(rd),
+                        setup: "On outer edge · back to fence",
+                      },
+                    ].map((c) => (
+                      <div key={c.title}>
+                        <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
+                          {c.title}
+                        </div>
+                        <div className="flex justify-between font-mono text-[12px]">
+                          <span className="text-ink-soft">Blade height</span>
+                          <span className="font-medium">{c.blade}</span>
+                        </div>
+                        <div className="flex justify-between font-mono text-[12px]">
+                          <span className="text-ink-soft">Fence distance</span>
+                          <span className="font-medium">{c.fence}</span>
+                        </div>
+                        <div className="mt-2 font-display text-[11px] italic leading-snug text-ink-soft">
+                          {c.setup}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </section>
