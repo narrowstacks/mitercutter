@@ -416,44 +416,45 @@ export default function FrameCalculator() {
 
         <section className="mb-6">
           <SectionLabel>All Dimensions</SectionLabel>
-          <table className="w-full border-collapse text-[13px]">
-            <tbody>
-              {(
+          <div className="text-[13px]">
+            {(
+              [
                 [
-                  [
-                    "Outer frame (long point)",
-                    `${fmt(outerShort)} × ${fmt(outerLong)}`,
-                    "outside edges of molding",
-                  ],
-                  [
-                    "Inner frame (short point)",
-                    `${fmt(innerShort)} × ${fmt(innerLong)}`,
-                    "inner face edge, also the sight opening",
-                  ],
-                  [
-                    "Rabbet opening",
-                    `${fmt(rabbetShort)} × ${fmt(rabbetLong)}`,
-                    "recess at the back where the glass sits",
-                  ],
-                  [
-                    "Glass",
-                    `${fmt(wShort)} × ${fmt(wLong)}`,
-                    "as specified",
-                  ],
-                ] as const
-              ).map((row, i) => (
-                <tr key={i} className="border-t border-rule">
-                  <td className="w-[38%] py-[10px] pr-2 align-top">{row[0]}</td>
-                  <td className="w-[32%] whitespace-nowrap px-2 py-[10px] align-top font-mono font-medium">
-                    {row[1]}
-                  </td>
-                  <td className="py-[10px] align-top font-display text-[12px] italic text-ink-soft">
-                    {row[2]}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  "Outer frame (long point)",
+                  `${fmt(outerShort)} × ${fmt(outerLong)}`,
+                  "outside edges of molding",
+                ],
+                [
+                  "Inner frame (short point)",
+                  `${fmt(innerShort)} × ${fmt(innerLong)}`,
+                  "inner face edge, also the sight opening",
+                ],
+                [
+                  "Rabbet opening",
+                  `${fmt(rabbetShort)} × ${fmt(rabbetLong)}`,
+                  "recess at the back where the glass sits",
+                ],
+                [
+                  "Glass",
+                  `${fmt(wShort)} × ${fmt(wLong)}`,
+                  "as specified",
+                ],
+              ] as const
+            ).map((row, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-[2px] border-t border-rule py-[10px] sm:grid sm:grid-cols-[38%_32%_30%] sm:items-start sm:gap-x-2 sm:gap-y-0"
+              >
+                <div className="break-words">{row[0]}</div>
+                <div className="font-mono font-medium break-words sm:px-2">
+                  {row[1]}
+                </div>
+                <div className="font-display text-[12px] italic text-ink-soft">
+                  {row[2]}
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="border-t border-rule pt-[14px]">

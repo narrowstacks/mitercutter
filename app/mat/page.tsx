@@ -140,9 +140,22 @@ export default function MatCalculator() {
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
           <div>
             <FieldGroup label="01 · Outer mat dimensions">
-              <div className="mb-[10px] flex gap-[10px]">
+              <div className="mb-[10px] flex items-end gap-[10px]">
                 <Field label="Width" value={outerW} onChange={setOuterW} />
                 <Field label="Height" value={outerH} onChange={setOuterH} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const w = outerW;
+                    setOuterW(outerH);
+                    setOuterH(w);
+                  }}
+                  title="Flip orientation"
+                  aria-label="Flip outer mat orientation"
+                  className="shrink-0 cursor-pointer rounded-none border border-ink bg-white px-[12px] py-[9px] font-mono text-[16px] text-ink hover:bg-ink hover:text-paper"
+                >
+                  ↔
+                </button>
               </div>
               <div className="flex flex-wrap gap-[6px]">
                 {PRESETS.map((p) => {
@@ -196,9 +209,22 @@ export default function MatCalculator() {
             </FieldGroup>
 
             <FieldGroup label="03 · Artwork & best fit">
-              <div className="mb-[10px] flex gap-[10px]">
+              <div className="mb-[10px] flex items-end gap-[10px]">
                 <Field label="Art width" value={artW} onChange={setArtW} />
                 <Field label="Art height" value={artH} onChange={setArtH} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const w = artW;
+                    setArtW(artH);
+                    setArtH(w);
+                  }}
+                  title="Flip orientation"
+                  aria-label="Flip artwork orientation"
+                  className="shrink-0 cursor-pointer rounded-none border border-ink bg-white px-[12px] py-[9px] font-mono text-[16px] text-ink hover:bg-ink hover:text-paper"
+                >
+                  ↔
+                </button>
               </div>
               <Field
                 label="Reveal (overlap onto art, per side)"
@@ -206,7 +232,7 @@ export default function MatCalculator() {
                 onChange={setReveal}
                 full
               />
-              <div className="mt-[10px] flex flex-wrap items-start justify-between gap-[10px]">
+              <div className="mt-[10px] flex flex-col items-start gap-[10px] sm:flex-row sm:flex-wrap sm:justify-between">
                 <div className="flex flex-col gap-[8px]">
                   <button
                     type="button"
@@ -636,53 +662,54 @@ export default function MatCalculator() {
 
         <section className="mb-6">
           <SectionLabel>All Dimensions</SectionLabel>
-          <table className="w-full border-collapse text-[13px]">
-            <tbody>
-              {(
+          <div className="text-[13px]">
+            {(
+              [
                 [
-                  [
-                    "Outer mat",
-                    `${fmt(ow)} × ${fmt(oh)}`,
-                    "matches frame rabbet",
-                  ],
-                  [
-                    "Window (sight opening)",
-                    `${fmt(windowW)} × ${fmt(windowH)}`,
-                    "cut from the face side, short point to short point",
-                  ],
-                  [
-                    "Borders",
-                    `${fmt(bt)} top · ${fmt(bb)} bot · ${fmt(bl)} L · ${fmt(br)} R`,
-                    "distance from outer edge to window edge",
-                  ],
-                  ...(revealMode
-                    ? ([
-                        [
-                          "Artwork",
-                          `${fmt(aw)} × ${fmt(ah)}`,
-                          "as specified",
-                        ],
-                        [
-                          "Actual reveal",
-                          `${fmt(overlapLeft)} L/R · ${fmt(overlapTop)} T/B`,
-                          "mat coverage onto the artwork edge",
-                        ],
-                      ] as const)
-                    : []),
-                ] as const
-              ).map((row, i) => (
-                <tr key={i} className="border-t border-rule">
-                  <td className="w-[38%] py-[10px] pr-2 align-top">{row[0]}</td>
-                  <td className="w-[32%] whitespace-nowrap px-2 py-[10px] align-top font-mono font-medium">
-                    {row[1]}
-                  </td>
-                  <td className="py-[10px] align-top font-display text-[12px] italic text-ink-soft">
-                    {row[2]}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  "Outer mat",
+                  `${fmt(ow)} × ${fmt(oh)}`,
+                  "matches frame rabbet",
+                ],
+                [
+                  "Window (sight opening)",
+                  `${fmt(windowW)} × ${fmt(windowH)}`,
+                  "cut from the face side, short point to short point",
+                ],
+                [
+                  "Borders",
+                  `${fmt(bt)} top · ${fmt(bb)} bot · ${fmt(bl)} L · ${fmt(br)} R`,
+                  "distance from outer edge to window edge",
+                ],
+                ...(revealMode
+                  ? ([
+                      [
+                        "Artwork",
+                        `${fmt(aw)} × ${fmt(ah)}`,
+                        "as specified",
+                      ],
+                      [
+                        "Actual reveal",
+                        `${fmt(overlapLeft)} L/R · ${fmt(overlapTop)} T/B`,
+                        "mat coverage onto the artwork edge",
+                      ],
+                    ] as const)
+                  : []),
+              ] as const
+            ).map((row, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-[2px] border-t border-rule py-[10px] sm:grid sm:grid-cols-[38%_32%_30%] sm:items-start sm:gap-x-2 sm:gap-y-0"
+              >
+                <div className="break-words">{row[0]}</div>
+                <div className="font-mono font-medium break-words sm:px-2">
+                  {row[1]}
+                </div>
+                <div className="font-display text-[12px] italic text-ink-soft">
+                  {row[2]}
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="border-t border-rule pt-[14px]">
