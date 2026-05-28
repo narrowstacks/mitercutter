@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Newsreader, Public_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { TabNav } from "./_components/TabNav";
 
 const newsreader = Newsreader({
   variable: "--font-newsreader",
@@ -22,9 +23,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Miter Cut Calculator",
+  title: "Frame Shop Calculators",
   description:
-    "Shop reference for mitered moldings with a rabbeted glass opening.",
+    "Shop reference for mitered moldings and mat board windows.",
 };
 
 export default function RootLayout({
@@ -37,7 +38,10 @@ export default function RootLayout({
       lang="en"
       className={`${newsreader.variable} ${publicSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <TabNav />
+        {children}
+      </body>
     </html>
   );
 }
